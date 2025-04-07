@@ -3,34 +3,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload Excel File</title>
+    <title>Excel Upload</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
         }
 
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        form {
-            background-color: #fff;
+        .container {
+            background-color: white;
             padding: 30px 40px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            position: relative;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
         }
 
         input[type="file"] {
-            margin-bottom: 15px;
-            font-size: 16px;
+            margin-top: 10px;
+            margin-bottom: 20px;
         }
 
         button {
@@ -38,21 +40,53 @@
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
         }
 
         button:hover {
             background-color: #45a049;
         }
+
+        .message {
+            color: green;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .zip-download {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+        }
+
+        .zip-download a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        .zip-download a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-    <h2> 📤 Upload Excel File</h2>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="excel_file" accept=".xlsx,.xls" required>
-        <button type="submit">Upload & Process</button>
-    </form>
+    <div class="container">
+        <h1>Upload Excel File</h1>
+        {% if message %}
+            <div class="message">✅ {{ message }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="excel_file" required><br>
+            <button type="submit">Upload</button>
+        </form>
+
+        {% if download_link %}
+            <div class="zip-download">
+                <a href="{{ download_link }}">⬇ Download ZIP</a>
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html>
