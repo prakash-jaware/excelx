@@ -8,7 +8,7 @@ import tempfile
 
 app = Flask(__name__)
 UPLOAD_FOLDER = tempfile.gettempdir()
-OUTPUT_FOLDER = Path("D:/test/")
+OUTPUT_FOLDER = Path("D:\test\")
 OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
 
 @app.route("/", methods=["GET", "POST"])
