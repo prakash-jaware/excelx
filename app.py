@@ -8,9 +8,7 @@ import tempfile
 
 app = Flask(__name__)
 UPLOAD_FOLDER = tempfile.gettempdir()
-user_home = Path.home()
-one_drive_path = user_home / "OneDrive - Shree Plan Your Journey Pvt Ltd" / "Documents" / "Output"
-OUTPUT_FOLDER = one_drive_path
+UPLOAD_FOLDER = Path("C:/Users/Public/")
 OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
 
 @app.route("/", methods=["GET", "POST"])
