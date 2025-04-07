@@ -1,20 +1,18 @@
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_file
 import pandas as pd
-from openpyxl import Workbook
 from pathlib import Path
-from datetime import datetime
-import os
+from openpyxl import Workbook
+import zipfile
 import tempfile
+import os
 
 app = Flask(__name__)
-UPLOAD_FOLDER = tempfile.gettempdir()
-OUTPUT_FOLDER = Path("D:/templates/Test/")
-OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         file = request.files.get("excel_file")
+
         if not file:
             return "No file uploaded", 400
 
@@ -24,6 +22,11 @@ def index():
             df_data = xl.parse("Data")
         except Exception as e:
             return f"Error reading Excel file: {e}", 500
+
+        # Use user-specific temp directory
+        user_output_folder = Path(tempfile.gettempdir()) / "excel_outputs"
+        output_folder = user_output_folder / "output"
+        output_folder.mkdir(parents=True, exist_ok=True)
 
         count = 0
         for _, row in df_list.iterrows():
@@ -42,7 +45,7 @@ def index():
             except:
                 month_name = "Unknown"
 
-            folder_path = OUTPUT_FOLDER / main_folder / month_name / sub_folder
+            folder_path = output_folder / main_folder / month_name / sub_folder
             folder_path.mkdir(parents=True, exist_ok=True)
 
             client_name = sub_folder
@@ -60,16 +63,23 @@ def index():
                 wb.close()
                 count += 1
 
-        return f"✅ {count} file(s) saved in '{OUTPUT_FOLDER}'"
+        # Create ZIP
+        zip_path = user_output_folder / "processed_output.zip"
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for root, _, files in os.walk(output_folder):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    arcname = os.path.relpath(file_path, output_folder)
+                    zipf.write(file_path, arcname)
+
+        return render_template("upload.html", message=f"✅ {count} file(s) saved!", download_link="/download")
 
     return render_template("upload.html")
 
-
-@app.route("/output/<path:filename>")
-def download_file(filename):
-    return send_from_directory(OUTPUT_FOLDER, filename, as_attachment=True)
-
+@app.route("/download")
+def download():
+    zip_path = Path(tempfile.gettempdir()) / "excel_outputs" / "processed_output.zip"
+    return send_file(zip_path, as_attachment=True)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
