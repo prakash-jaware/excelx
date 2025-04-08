@@ -24,7 +24,7 @@ def index():
             return f"❌ Error reading Excel file: {e}", 500
  
         base_path = Path(
-            fr"https://shreeplanyourjourney-my.sharepoint.com/personal/janvi_planyourjourney_com/Documents/SPYJ/RECON-24-25/2024-2025%20Working/Database/"
+            "https://shreeplanyourjourney-my.sharepoint.com/personal/janvi_planyourjourney_com/Documents/SPYJ/RECON-24-25/2024-2025%20Working/Database/"
         )
  
         count = 0
