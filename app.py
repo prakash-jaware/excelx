@@ -12,7 +12,7 @@ app = Flask(__name__)
 def index():
     if request.method == "POST":
         file = request.files.get("excel_file")
-        username = request.form.get("username")
+        username = request.form.get("YourUsername")
         if not file or not username:
             return "Please upload a file and enter username.", 400
  
