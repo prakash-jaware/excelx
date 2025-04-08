@@ -24,7 +24,7 @@ def index():
             return f"❌ Error reading Excel file: {e}", 500
  
         base_path = Path(
-            f"C:/Users/{username}/OneDrive - Shree Plan Your Journey Pvt Ltd/Local/Transform_Data/"
+            f"C:/Users/{username}/OneDrive - Shree Plan Your Journey Pvt Ltd/Local/"
         )
  
         count = 0
