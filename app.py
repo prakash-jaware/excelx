@@ -1,9 +1,9 @@
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, render_template, send_from_directory
 import pandas as pd
-from pathlib import Path
 from openpyxl import Workbook
-import zipfile
-import tempfile
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from pathlib import Path
+from datetime import datetime
 import os
 
 app = Flask(__name__)
@@ -12,21 +12,23 @@ app = Flask(__name__)
 def index():
     if request.method == "POST":
         file = request.files.get("excel_file")
+        username = request.form.get("username")
 
-        if not file:
-            return "No file uploaded", 400
+        if not file or not username:
+            return "❌ Please upload a file and enter username.", 400
+            return redirect(url_for("index"))
 
         try:
             xl = pd.ExcelFile(file)
             df_list = xl.parse("Client_List")
             df_data = xl.parse("Data")
         except Exception as e:
-            return f"Error reading Excel file: {e}", 500
+            return f"❌ Error reading Excel file: {e}", 500
+            return redirect(url_for("index"))
 
-        # Use user-specific temp directory
-        user_output_folder = Path(tempfile.gettempdir()) / "excel_outputs"
-        output_folder = user_output_folder / "output"
-        output_folder.mkdir(parents=True, exist_ok=True)
+        base_path = Path(
+            fr"C:/Users/{username}/OneDrive - Shree Plan Your Journey Pvt Ltd/Test Excel/Test"
+        )
 
         count = 0
         for _, row in df_list.iterrows():
@@ -37,7 +39,7 @@ def index():
             except:
                 continue
 
-            if not main_folder:
+            if not main_folder or not sub_folder:
                 continue
 
             try:
@@ -45,42 +47,109 @@ def index():
             except:
                 month_name = "Unknown"
 
-            folder_path = output_folder / main_folder / month_name
+            folder_path = base_path / main_folder / sub_folder / month_name
             folder_path.mkdir(parents=True, exist_ok=True)
 
             client_name = sub_folder
             clean_name = ''.join(c for c in client_name if c not in r'[]:*?/\\')[:31] or "Sheet"
             df_client = df_data[df_data.iloc[:, 0].astype(str).str.strip() == client_name]
 
-            if not df_client.empty:
-                wb = Workbook()
-                ws = wb.active
-                ws.title = clean_name
-                ws.append(df_data.columns.tolist())
-                for record in df_client.itertuples(index=False):
-                    ws.append(list(record))
-                wb.save(folder_path / f"{clean_name}.xlsx")
-                wb.close()
-                count += 1
+            if df_client.empty:
+                continue
 
-        # Create ZIP
-        zip_path = user_output_folder / "processed_output.zip"
-        with zipfile.ZipFile(zip_path, 'w') as zipf:
-            for root, _, files in os.walk(output_folder):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    arcname = os.path.relpath(file_path, output_folder)
-                    zipf.write(file_path, arcname)
+            wb = Workbook()
+            ws = wb.active
+            ws.title = "Sheet1"
 
-        return render_template("upload.html", message=f"✅ {count} file(s) saved!", download_link="/download")
+            max_col = df_data.shape[1]
+
+            # Styles
+            bold_font = Font(bold=True)
+            center_align = Alignment(horizontal="center", vertical="center")
+            yellow_fill = PatternFill(start_color="FFFF00", end_color="FFFF00", fill_type="solid")
+            thin_border = Border(left=Side(style='thin'), right=Side(style='thin'),
+                                 top=Side(style='thin'), bottom=Side(style='thin'))
+
+            # Header Row 1: Client Name
+            ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=max_col)
+            ws.cell(row=1, column=1, value=f"{client_name.upper()}").font = Font(size=14, bold=True)
+            ws.cell(row=1, column=1).alignment = center_align
+
+            # Header Row 2: Dynamic Date Range from Booking Date
+            booking_col = None
+            for col in df_client.columns:
+                if "booking" in col.lower() and "date" in col.lower():
+                    booking_col = col
+                    break
+
+            if booking_col:
+                try:
+                    df_client[booking_col] = pd.to_datetime(df_client[booking_col], errors='coerce')
+                    min_dt = df_client[booking_col].min()
+                    max_dt = df_client[booking_col].max()
+
+                    if pd.notnull(min_dt) and pd.notnull(max_dt):
+                        first_day = min_dt.replace(day=1)
+                        last_day = max_dt.replace(day=1) + pd.offsets.MonthEnd(0)
+                        date_range = f"STATEMENT ON {first_day.strftime('%d/%m/%Y')} TO {last_day.strftime('%d/%m/%Y')}"
+                    else:
+                        date_range = "STATEMENT DATE UNKNOWN"
+                except:
+                    date_range = "STATEMENT DATE UNKNOWN"
+            else:
+                date_range = "STATEMENT DATE NOT FOUND"
+
+            ws.merge_cells(start_row=2, start_column=1, end_row=2, end_column=max_col)
+            ws.cell(row=2, column=1, value=date_range).font = Font(size=12, bold=True)
+            ws.cell(row=2, column=1).alignment = center_align
+
+            # Column Headers (Row 3)
+            ws.append(df_data.columns.tolist())
+            for cell in ws[3]:
+                cell.font = bold_font
+                cell.alignment = center_align
+                cell.border = thin_border
+                cell.fill = PatternFill("solid", fgColor="FFFFCC")
+
+            # Data Rows starting from row 4
+            for idx, record in enumerate(df_client.itertuples(index=False), start=4):
+                row_data = list(record)
+                ws.append(row_data)
+
+                for col_index, cell in enumerate(ws[idx], start=1):
+                    cell.border = thin_border
+                    cell.alignment = center_align
+
+                    # Format Booking Date column to show only the date
+                    if booking_col and df_client.columns[col_index - 1] == booking_col:
+                        cell.number_format = 'DD/MM/YYYY'
+
+            # Total Row
+            total_row_idx = ws.max_row + 1
+            ws.cell(row=total_row_idx, column=max_col - 1, value="TOTAL")
+            ws.cell(row=total_row_idx, column=max_col - 1).fill = yellow_fill
+            ws.cell(row=total_row_idx, column=max_col - 1).font = bold_font
+            ws.cell(row=total_row_idx, column=max_col - 1).alignment = center_align
+
+            # Auto Sum last column (assumes last column has numeric values to total)
+            g_total_col_letter = chr(64 + max_col)
+            ws.cell(row=total_row_idx, column=max_col).value = f"=SUM({g_total_col_letter}4:{g_total_col_letter}{total_row_idx - 1})"
+            ws.cell(row=total_row_idx, column=max_col).fill = yellow_fill
+            ws.cell(row=total_row_idx, column=max_col).font = bold_font
+            ws.cell(row=total_row_idx, column=max_col).alignment = center_align
+
+            # Save Excel
+            wb.save(folder_path / f"{clean_name}.xlsx")
+            wb.close()
+            count += 1
+
+        return f"✅ {count} file(s) created successfully in '{base_path}'"
 
     return render_template("upload.html")
 
-@app.route("/download")
-def download():
-    zip_path = Path(tempfile.gettempdir()) / "excel_outputs" / "processed_output.zip"
-    return send_file(zip_path, as_attachment=True)
+@app.route("/output/<path:filename>")
+def download_file(filename):
+    return send_from_directory(base_path, filename, as_attachment=True)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
