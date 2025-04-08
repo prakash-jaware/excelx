@@ -143,12 +143,6 @@ def index():
 def download_file(filename):
     return send_from_directory(base_path, filename, as_attachment=True)
  
-if __name__ == "__main__":
-    app.run(debug=True)
-
-@app.route("/output/<path:filename>")
-def download_file(filename):
-    return send_from_directory(base_path, filename, as_attachment=True)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
