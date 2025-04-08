@@ -1,137 +1,112 @@
 <!-- templates/upload.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Upload Excel File</title>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #74ebd5, #9face6);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    .card {
-      background-color: #fff;
-      padding: 40px 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      max-width: 420px;
-      width: 100%;
-      animation: slideUp 0.4s ease;
-    }
-
-    @keyframes slideUp {
-      from {
-        transform: translateY(40px);
-        opacity: 0;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    h2 {
-      text-align: center;
-      margin-bottom: 25px;
-      color: #333;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      color: #555;
-    }
-
-    input[type="file"],
-    input[type="text"] {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.2s;
-    }
-
-    input:focus {
-      outline: none;
-      border-color: #6c63ff;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #6c63ff;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    button:hover {
-      background: #574fd6;
-    }
-
-    .note {
-      margin-top: 15px;
-      font-size: 12px;
-      text-align: center;
-      color: #666;
-    }
-
-    .flash {
-      background-color: #e0ffe0;
-      padding: 10px;
-      border: 1px solid #8bc34a;
-      border-radius: 5px;
-      margin-bottom: 15px;
-      text-align: center;
-      color: #2e7d32;
-      font-weight: bold;
-    }
-  </style>
+<title>Upload Excel</title>
+<style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e9f0f4, #f5fcff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+ 
+        form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            animation: fadeInSlide 0.7s ease-out;
+        }
+ 
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+ 
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #333;
+        }
+ 
+        .form-group {
+            margin-bottom: 20px;
+        }
+ 
+        label {
+            font-size: 14px;
+            margin-bottom: 6px;
+            display: block;
+            color: #333;
+        }
+ 
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+ 
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+ 
+        button {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(to right, #007bff, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s ease-in-out;
+        }
+ 
+        button:hover {
+            background: linear-gradient(to right, #0056b3, #003d80);
+        }
+ 
+        button:active {
+            transform: scale(0.98);
+        }
+</style>
 </head>
 <body>
-  <div class="card">
-    <h2>Upload Excel File</h2>
-
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <div class="flash">{{ messages[0] }}</div>
-        <script>
-          setTimeout(() => {
-            window.location.href = "{{ url_for('index') }}";
-          }, 3000);
-        </script>
-      {% endif %}
-    {% endwith %}
-
-    <form method="post" enctype="multipart/form-data">
-      <label for="excel_file">Excel File:</label>
-      <input type="file" name="excel_file" id="excel_file" required>
-
-      <label for="username">Windows Username:</label>
-      <input type="text" name="username" id="username" placeholder="e.g. prashant.jadhav" required>
-
-      <button type="submit">Upload</button>
-    </form>
-
-    <p class="note">Files will be saved to your OneDrive Test folder</p>
-  </div>
+<form method="post" enctype="multipart/form-data">
+<h2>📤 Upload Excel File</h2>
+ 
+        <div class="form-group">
+<label for="excel_file">Select Excel File</label>
+<input type="file" name="excel_file" id="excel_file" required>
+</div>
+ 
+        <div class="form-group">
+<label for="username">Enter Windows Username</label>
+<input type="text" name="username" id="username" placeholder="e.g. prashant.jadhav" required>
+</div>
+ 
+        <button type="submit">Upload & Generate</button>
+</form>
 </body>
 </html>
