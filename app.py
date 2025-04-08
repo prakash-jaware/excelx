@@ -45,7 +45,7 @@ def index():
             except:
                 month_name = "Unknown"
 
-            folder_path = output_folder / main_folder / month_name
+            folder_path = output_folder / main_folder / month_name / sub_folder
             folder_path.mkdir(parents=True, exist_ok=True)
 
             client_name = sub_folder
