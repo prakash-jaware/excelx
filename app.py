@@ -23,9 +23,7 @@ def index():
         except Exception as e:
             return f"❌ Error reading Excel file: {e}", 500
  
-        base_path = Path(
-            f"C:/Users/{username}/OneDrive - Shree Plan Your Journey Pvt Ltd/Local/"
-        )
+        base_path = Path("./OneDrive - Shree Plan Your Journey Pvt Ltd/!Macros/")
  
         count = 0
         for _, row in df_list.iterrows():
