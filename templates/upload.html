@@ -1,58 +1,112 @@
 <!-- templates/upload.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Upload Excel File</title>
-    <style>
+<title>Upload Excel</title>
+<style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f2f2f2;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e9f0f4, #f5fcff);
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
         }
-
+ 
+        form {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 420px;
+            animation: fadeInSlide 0.7s ease-out;
+        }
+ 
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+ 
         h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
             color: #333;
+        }
+ 
+        .form-group {
             margin-bottom: 20px;
         }
-
-        form {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+ 
+        label {
+            font-size: 14px;
+            margin-bottom: 6px;
+            display: block;
+            color: #333;
         }
-
-        input[type="file"] {
-            margin-bottom: 15px;
-            font-size: 16px;
+ 
+        input[type="file"],
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-
+ 
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+ 
         button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(to right, #007bff, #0056b3);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
+            transition: background 0.3s, transform 0.1s ease-in-out;
         }
-
+ 
         button:hover {
-            background-color: #45a049;
+            background: linear-gradient(to right, #0056b3, #003d80);
         }
-    </style>
+ 
+        button:active {
+            transform: scale(0.98);
+        }
+</style>
 </head>
 <body>
-    <h2> 📤 Upload Excel File</h2>
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="excel_file" accept=".xlsx,.xls" required>
-        <button type="submit">Upload & Process</button>
-    </form>
+<form method="post" enctype="multipart/form-data">
+<h2>📤 Upload Excel File</h2>
+ 
+        <div class="form-group">
+<label for="excel_file">Select Excel File</label>
+<input type="file" name="excel_file" id="excel_file" required>
+</div>
+ 
+        <div class="form-group">
+<label for="username">Enter Windows Username</label>
+<input type="text" name="username" id="username" placeholder="e.g. prashant.jadhav" required>
+</div>
+ 
+        <button type="submit">Upload & Generate</button>
+</form>
 </body>
 </html>
